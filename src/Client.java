@@ -36,18 +36,18 @@ public class Client
         return wordCount;
     }
 
-//	public static void main(String[] args)
-//	{
-//		try
-//		{
-//			System.out.println(wordCount("words.txt"));
-//		} 
-//		catch (FileNotFoundException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//	}
+	public static void main(String[] args)
+	{
+		try
+		{
+			System.out.println(wordCount("Job.txt"));
+		} 
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 }
