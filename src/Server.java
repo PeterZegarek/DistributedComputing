@@ -70,9 +70,9 @@ public class Server {
 
     public void sendData(List<String> list)
     {
-        List<String> dummy = new ArrayList<>();
-        dummy.add(list.get(0));
-        dummy.add(list.get(1));
+//        List<String> dummy = new ArrayList<>();
+//        dummy.add(list.get(0));
+//        dummy.add(list.get(1));
 
         try
         {
@@ -115,10 +115,6 @@ public class Server {
         if(!list.isEmpty())
         {
             server1.sendData(list);
-
-
-            //Wait for response
-            //TODO get data back
         }
         // how many responses we have gotten
         //int answers = 0;

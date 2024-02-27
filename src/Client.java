@@ -33,7 +33,7 @@ public class Client
             input = new ObjectInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            List<String> list = (List<String>) input.readObject();
+            String[] list = (String[]) input.readObject();
 
             //Calculate word count
             int wordCount = calculateWordCount(list);
@@ -58,7 +58,7 @@ public class Client
     }
 
 
-    private int calculateWordCount(List<String> list)
+    private int calculateWordCount(String[] list)
     {
         int wordCount = 0;
         for(String line : list)
@@ -71,7 +71,12 @@ public class Client
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
     {
-        Client client = new Client("localHost", 5000);
+       // Client client = new Client("localHost", 5000);
+
+        for(int counter = 0; counter < 5; counter++)
+        {
+            Client extraClient = new Client("localHost", 5000);
+        }
 	}
 
 }
