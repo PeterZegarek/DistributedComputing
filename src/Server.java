@@ -24,11 +24,15 @@ public class Server {
             server = new ServerSocket(port);
             System.out.println("Server is starting");
 
+
             System.out.println("Waiting for connection");
 
             //Accepts client connection based on port number
             socket = server.accept();
             System.out.println("Client Accepted");
+
+            out = new ObjectOutputStream(socket.getOutputStream());
+
 
         } catch (IOException ioException)
         {
@@ -68,6 +72,7 @@ public class Server {
         try
         {
             out.writeObject(list);
+            out.flush();
 
             String words = in.readUTF();
             System.out.println(words);
@@ -94,9 +99,16 @@ public class Server {
             System.out.println(fileNotFoundException);
         }
 
+        System.out.println("Send data?");
+        scanner.next();
+
         if(!list.isEmpty())
         {
             server1.sendData(list);
+
+
+            //Wait for response
+            //TODO get data back
         }
         // how many responses we have gotten
         //int answers = 0;

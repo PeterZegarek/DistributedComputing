@@ -35,8 +35,15 @@ public class Client
             //Waiting for the input of data
             while(list.isEmpty())
             {
-                list = (List<String>) input.readObject();
+                if (input != null)
+                {
+                    list = (List<String>) input.readObject();
+                }
             }
+
+            //Count words
+            out.write(sendWordCount(list));
+
             //getting input
             //input = new DataInputStream(System.in);
 
@@ -54,6 +61,14 @@ public class Client
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public int sendWordCount(List<String> list)
+    {
+        int wordCount = list.stream()
+                                .mapToInt(line -> line.split("\\s+").length)
+                                    .sum();
+        return  wordCount;
     }
     public static int wordCount(String path) throws FileNotFoundException
     {
