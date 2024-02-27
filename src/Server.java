@@ -41,7 +41,8 @@ public class Server {
         }
     }
 
-    private List<String> fileTrim(String path) throws FileNotFoundException
+    // this converts the file to a list
+    private static ArrayList<List<String>> fileTrim(String path, int numberOfClients) throws FileNotFoundException
     {
         // File object
         File file = new File(path);
@@ -63,17 +64,29 @@ public class Server {
         }
 
 
-        return lines;
+        // Calculate the size of each portion
+        int portionSize = lines.size() / numberOfClients;
+        int remainder = lines.size() % numberOfClients; // Handle remainder
+        
+        // Initialize the list of portions
+        ArrayList<List<String>> portions = new ArrayList<>();
 
+        // Create portions
+        int fromIndex = 0;
+        for (int counter = 0; counter < numberOfClients; counter++) {
+            int toIndex = fromIndex + portionSize + (counter < remainder ? 1 : 0);
+            List<String> portion = lines.subList(fromIndex, toIndex);
+            portions.add(portion);
+            fromIndex = toIndex;
+        }
+
+        return portions;
 
     }
 
+    // this writes to the output stream so the client can get it
     public void sendData(List<String> list)
     {
-        List<String> dummy = new ArrayList<>();
-        dummy.add(list.get(0));
-        dummy.add(list.get(1));
-
         try
         {
             //Sends the list to the client
@@ -91,53 +104,64 @@ public class Server {
             ioException.printStackTrace();
         }
     }
-    public static void main(String args[])
+
+    // need to provide command line argument of how many clients are expected
+    public static void main(int args[])
     {
+        int expectedClients = args[0];
+
+        // this will increase as clients connect
+        int connectedClients = 0;
+
+        //before we even look for connections, the file will be split into an even number of jobs for each client to take on
+        ArrayList<List<String>> jobs = new ArrayList<List<String>>(expectedClients);
+        try {
+            jobs = fileTrim("Job.txt", expectedClients);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+        // make sure port numbers are consistent
+        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+            while (connectedClients < expectedClients) {
+                
+
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected: " + clientSocket);
+
+                // Create a new thread to handle the client connection
+                Thread clientThread = new ClientHandler(clientSocket, jobs.get(connectedClients));
+                clientThread.start();
+                connectedClients++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //old code
         //Starting Server
-        Server server1 = new Server(5000);
-
-        //Using Scanner to do it in steps
-        Scanner scanner = new Scanner(System.in);
-
-        List<String> list = new ArrayList<>();
-
-        try
-        {
-            list = server1.fileTrim("Job.txt");
-        } catch (FileNotFoundException fileNotFoundException)
-        {
-            System.out.println(fileNotFoundException);
-        }
-
-        System.out.println("Send data?");
-        scanner.next();
-
-        if(!list.isEmpty())
-        {
-            server1.sendData(list);
+        // Server server1 = new Server(5000);
 
 
-            //Wait for response
-            //TODO get data back
-        }
-        // how many responses we have gotten
-        //int answers = 0;
+        // List<String> list = new ArrayList<>();
 
-        // hard coded for now
-//        while (answers < 6) {
-//
-//            // hard coding port number
-//            int portNumber = 4444;
-//
-//
-//
-//            // establish connections with clients if haven't been made
-//
-//            // send out the job if it hasn't been sent
-//
-//            // receive the job
-//
-//            // return result after
-//        }
+        // try
+        // {
+        //     list = server1.fileTrim("Job.txt");
+        // } catch (FileNotFoundException fileNotFoundException)
+        // {
+        //     System.out.println(fileNotFoundException);
+        // }
+
+
+        // if(!list.isEmpty())
+        // {
+        //     server1.sendData(list);
+
+
+        //     //Wait for response
+        //     //TODO get data back
+        // }
     }
 }
