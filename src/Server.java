@@ -72,10 +72,12 @@ public class Server {
     {
         List<String> dummy = new ArrayList<>();
         dummy.add(list.get(0));
+        dummy.add(list.get(1));
+
         try
         {
             //Sends the list to the client
-            out.writeObject(dummy);
+            out.writeObject(list);
             out.flush();
 
             //Read the response
