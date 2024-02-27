@@ -3,6 +3,8 @@ package src;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client
@@ -16,7 +18,7 @@ public class Client
      */
 
     private Socket socket = null;
-    private DataInputStream input = null;
+    private ObjectInputStream input = null;
     private DataOutputStream out = null;
 
     public Client(String address, int port)
@@ -27,11 +29,19 @@ public class Client
             socket = new Socket(address, port);
             System.out.println("Connected");
 
+
+            List<String> list = new ArrayList<>();
+
+            //Waiting for the input of data
+            while(list.isEmpty())
+            {
+                list = (List<String>) input.readObject();
+            }
             //getting input
-            input = new DataInputStream(System.in);
+            //input = new DataInputStream(System.in);
 
             //Sends output to the socket
-            out = new DataOutputStream(socket.getOutputStream());
+            //out = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException unknownHostException)
         {
             System.out.println(unknownHostException);
@@ -40,6 +50,9 @@ public class Client
         {
             System.out.println(ioException);
             return;
+        } catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException(e);
         }
     }
     public static int wordCount(String path) throws FileNotFoundException
@@ -66,15 +79,18 @@ public class Client
 
 	public static void main(String[] args)
 	{
-		try
-		{
-			System.out.println(wordCount("Job.txt"));
-		} 
-		catch (FileNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        Client client = new Client("127.0.0.1", 5000);
+
+
+//		try
+//		{
+//			System.out.println(wordCount("Job.txt"));
+//		}
+//		catch (FileNotFoundException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 	}
 
