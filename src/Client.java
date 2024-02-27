@@ -1,8 +1,8 @@
 package src;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Client
@@ -14,6 +14,34 @@ public class Client
      * @precondition file must be a valid text file
      * @postcondition wordCount represents total number of words separated by space
      */
+
+    private Socket socket = null;
+    private DataInputStream input = null;
+    private DataOutputStream out = null;
+
+    public Client(String address, int port)
+    {
+        //establishing connection
+        try
+        {
+            socket = new Socket(address, port);
+            System.out.println("Connected");
+
+            //getting input
+            input = new DataInputStream(System.in);
+
+            //Sends output to the socket
+            out = new DataOutputStream(socket.getOutputStream());
+        } catch (UnknownHostException unknownHostException)
+        {
+            System.out.println(unknownHostException);
+            return;
+        } catch (IOException ioException)
+        {
+            System.out.println(ioException);
+            return;
+        }
+    }
     public static int wordCount(String path) throws FileNotFoundException
     {
         // File object
