@@ -18,8 +18,8 @@ public class Client
      */
 
     private Socket socket = null;
-    private ObjectInputStream input = null;
-    private DataOutputStream out = null;
+    private static ObjectInputStream input = null;
+    private static DataOutputStream out = null;
 
     public Client(String address, int port)
     {
@@ -29,26 +29,20 @@ public class Client
             socket = new Socket(address, port);
             System.out.println("Connected");
 
+            //Initialize Input and Output
+            input = new ObjectInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
 
-            List<String> list = new ArrayList<>();
+            List<String> list = (List<String>) input.readObject();
 
-            //Waiting for the input of data
-            while(list.isEmpty())
-            {
-                if (input != null)
-                {
-                    list = (List<String>) input.readObject();
-                }
-            }
+            //Calculate word count
+            int wordCount = calculateWordCount(list);
+            out.writeInt(wordCount);
+            out.flush();
 
-            //Count words
-            out.write(sendWordCount(list));
+            //Close connection
+            socket.close();
 
-            //getting input
-            //input = new DataInputStream(System.in);
-
-            //Sends output to the socket
-            //out = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException unknownHostException)
         {
             System.out.println(unknownHostException);
@@ -63,50 +57,21 @@ public class Client
         }
     }
 
-    public int sendWordCount(List<String> list)
+
+    private int calculateWordCount(List<String> list)
     {
-        int wordCount = list.stream()
-                                .mapToInt(line -> line.split("\\s+").length)
-                                    .sum();
-        return  wordCount;
-    }
-    public static int wordCount(String path) throws FileNotFoundException
-    {
-        // File object
-        File file = new File(path);
-
-        // file existence check
-        if(!file.exists())
-            throw new FileNotFoundException();
-
-        Scanner reader = new Scanner(file);
-
         int wordCount = 0;
-
-        // 1. read file line by line, count # of words, accumulate result
-        // 2. this approach is faster for large file, limits stack overflow error
-        while(reader.hasNext())
-            wordCount += reader.nextLine().trim().split("\\s+").length;
-
-        reader.close();
+        for(String line : list)
+        {
+            String[] words = line.trim().split("\\s+");
+            wordCount += words.length;
+        }
         return wordCount;
     }
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) throws IOException, ClassNotFoundException
+    {
         Client client = new Client("127.0.0.1", 5000);
-
-
-//		try
-//		{
-//			System.out.println(wordCount("Job.txt"));
-//		}
-//		catch (FileNotFoundException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
 	}
 
 }

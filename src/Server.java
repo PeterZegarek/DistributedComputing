@@ -32,6 +32,7 @@ public class Server {
             System.out.println("Client Accepted");
 
             out = new ObjectOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
 
 
         } catch (IOException ioException)
@@ -69,13 +70,20 @@ public class Server {
 
     public void sendData(List<String> list)
     {
+        List<String> dummy = new ArrayList<>();
+        dummy.add(list.get(0));
         try
         {
-            out.writeObject(list);
+            //Sends the list to the client
+            out.writeObject(dummy);
             out.flush();
 
-            String words = in.readUTF();
-            System.out.println(words);
+            //Read the response
+            int words = in.readInt();
+            System.out.println("Words received: " + words);
+
+            socket.close();
+
         } catch (IOException ioException)
         {
             ioException.printStackTrace();
