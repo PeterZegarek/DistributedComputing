@@ -1,8 +1,10 @@
 package src;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client
@@ -14,40 +16,67 @@ public class Client
      * @precondition file must be a valid text file
      * @postcondition wordCount represents total number of words separated by space
      */
-    public static int wordCount(String path) throws FileNotFoundException
+
+    private Socket socket = null;
+    private static ObjectInputStream input = null;
+    private static DataOutputStream out = null;
+
+    public Client(String address, int port)
     {
-        // File object
-        File file = new File(path);
+        //establishing connection
+        try
+        {
+            socket = new Socket(address, port);
+            System.out.println("Connected");
 
-        // file existence check
-        if(!file.exists())
-            throw new FileNotFoundException();
+            //Initialize Input and Output
+            input = new ObjectInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
 
-        Scanner reader = new Scanner(file);
+            String[] list = (String[]) input.readObject();
 
+            //Calculate word count
+            int wordCount = calculateWordCount(list);
+            out.writeInt(wordCount);
+            out.flush();
+
+            //Close connection
+            socket.close();
+
+        } catch (UnknownHostException unknownHostException)
+        {
+            System.out.println(unknownHostException);
+            return;
+        } catch (IOException ioException)
+        {
+            System.out.println(ioException);
+            return;
+        } catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private int calculateWordCount(String[] list)
+    {
         int wordCount = 0;
-
-        // 1. read file line by line, count # of words, accumulate result
-        // 2. this approach is faster for large file, limits stack overflow error
-        while(reader.hasNext())
-            wordCount += reader.nextLine().trim().split("\\s+").length;
-
-        reader.close();
+        for(String line : list)
+        {
+            String[] words = line.trim().split("\\s+");
+            wordCount += words.length;
+        }
         return wordCount;
     }
 
-	public static void main(String[] args)
-	{
-		try
-		{
-			System.out.println(wordCount("Job.txt"));
-		} 
-		catch (FileNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void main(String[] args) throws IOException, ClassNotFoundException
+    {
+       // Client client = new Client("localHost", 5000);
 
+        for(int counter = 0; counter < 5; counter++)
+        {
+            Client extraClient = new Client("localHost", 5000);
+        }
 	}
 
 }
