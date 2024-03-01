@@ -42,7 +42,6 @@ public class MultiServer
             // hardcoded to finish when all clients are done
             while (finishedClients != 5)
             {
-
                 Socket clientSocket = null;
                 // if there are not 5 clients yet, accept connections
                 if (connectedClients != 5){
@@ -146,7 +145,7 @@ public class MultiServer
         @Override
         public void run()
         {
-            // while there is no filepath wait
+            // while there is no filepath wait until there is one
             while (filePath == null){
                 try {
                     Thread.sleep(10);
@@ -159,15 +158,9 @@ public class MultiServer
             try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                  DataInputStream in = new DataInputStream(clientSocket.getInputStream());)
             {
-                // if we get filePath working use that
+                //  fileTrim the given filePath
                 String[] list = fileTrim(filePath, clients);
-                // String[] list = fileTrim("Job.txt", clients);
-
-                //Dummy for testing
-//                List<String> dummy = new ArrayList<>();
-//                dummy.add(list.get(0));
-//                dummy.add(list.get(1));
-
+    
 
                 //Sending the list
                 out.writeObject(list);
@@ -199,15 +192,6 @@ public class MultiServer
         MultiServer server = new MultiServer(5000);
         server.startServer(numOfClients);
 
-        // until there are 5 finished clients wait
-        while (finishedClients != 5){
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
         // print total number of words
         System.out.println("Total number of words is: " + totalWords);
         // print total time taken
