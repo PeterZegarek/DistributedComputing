@@ -6,6 +6,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+/*
+ * Peter Zegarek, Christopher Anzilotti, Hunter Yocum
+ */
 
 public class Client
 {
@@ -71,13 +74,13 @@ public class Client
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
     {
-        // System.out.println("What IP address are you connecting to? Please enter it.");
-        // Scanner sc = new Scanner(System.in);
-        // String ip = sc.nextLine();
-        // Client client = new Client(ip, 5000);
-        // sc.close();
+        System.out.println("What IP address are you connecting to? Please enter it.");
+        Scanner sc = new Scanner(System.in);
+        String ip = sc.nextLine();
+        Client client = new Client(ip, 5000);
+        sc.close();
 
-        Client client = new Client("localHost", 5000);
+        // Client client = new Client("localhost", 5000);
 
     
 	}
