@@ -71,12 +71,15 @@ public class Client
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
     {
-       // Client client = new Client("localHost", 5000);
+        // System.out.println("What IP address are you connecting to? Please enter it.");
+        // Scanner sc = new Scanner(System.in);
+        // String ip = sc.nextLine();
+        // Client client = new Client(ip, 5000);
+        // sc.close();
 
-        for(int counter = 0; counter < 5; counter++)
-        {
-            Client extraClient = new Client("localHost", 5000);
-        }
+        Client client = new Client("localHost", 5000);
+
+    
 	}
 
 }
