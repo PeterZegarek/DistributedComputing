@@ -10,7 +10,15 @@ import java.util.Scanner;
 public class MultiServer
 {
     private ServerSocket serverSocket;
+    private int connectedClients;
+    public static int totalWords;
+    public static int finishedClients;
 
+    public static String filePath;
+
+    public static long startTime;
+
+    // constructor for the server
     public MultiServer(int port)
     {
         try
@@ -27,15 +35,37 @@ public class MultiServer
     {
         try
         {
-            while (true)
+            boolean inputReceived = false;
+            // hardcoded to finish when all clients are done
+            while (finishedClients != 5)
             {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected: " + clientSocket);
+
+                Socket clientSocket = null;
+                // if there are not 5 clients yet, accept connections
+                if (connectedClients != 5){
+                    clientSocket = serverSocket.accept();
+                    System.out.println("New client connected: " + clientSocket);
+                    connectedClients++;
+                }
+
+                // if there are 5 clients connected, ask if they want to start the job
+                if (connectedClients == 5 && !inputReceived){
+                    Scanner sc = new Scanner(System.in);
+                    System.out.println("All clients connected.");
+                    System.out.println("Enter file name to begin transmitting file to clients.");
+                    filePath = sc.nextLine();
+                    sc.close();
+                    inputReceived = true;
+                    startTime = System.currentTimeMillis();
+                }
 
                 //Starting the threads to handle clients
-                ClientHandler clientHandler = new ClientHandler(clientSocket, clients);
-                Thread clientThread = new Thread(clientHandler);
-                clientThread.start();
+                if (clientSocket != null){
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, clients);
+                    Thread clientThread = new Thread(clientHandler);
+                    clientThread.start();
+                }
+
             }
         } catch (IOException ioException)
         {
@@ -43,6 +73,7 @@ public class MultiServer
         }
     }
 
+    // this is called by each thread to take a certain part of the file and send to the client
     private static String[] fileTrim(String path, int clients) throws FileNotFoundException
     {
         // File object
@@ -96,19 +127,9 @@ public class MultiServer
         failure[1] = "Darn";
         return failure;
 
-
-        //Using two HARDCODED
-//        if (Thread.currentThread().getName().equals("Thread-0"))
-//        {
-//            return lines.subList(0, midPoint).toArray(new String[0]);
-//        }
-//        else
-//        {
-//            return lines.subList(midPoint, lines.size()).toArray(new String[0]);
-//        }
-
     }
 
+    // other class to handle the client. These are spun off as threads
     private static class ClientHandler implements Runnable
     {
         private Socket clientSocket;
@@ -122,10 +143,22 @@ public class MultiServer
         @Override
         public void run()
         {
+            // while there is no filepath wait
+            while (filePath == null){
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
             try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                  DataInputStream in = new DataInputStream(clientSocket.getInputStream());)
             {
-                String[] list = fileTrim("Job.txt", clients);
+                // if we get filePath working use that
+                String[] list = fileTrim(filePath, clients);
+                // String[] list = fileTrim("Job.txt", clients);
 
                 //Dummy for testing
 //                List<String> dummy = new ArrayList<>();
@@ -141,6 +174,9 @@ public class MultiServer
                 int words = in.readInt();
                 System.out.println("Words: " + words);
 
+                totalWords += words;
+                finishedClients += 1;
+
                 //Closing socket
                 clientSocket.close();
             } catch (IOException ioException)
@@ -150,15 +186,31 @@ public class MultiServer
         }
     }
 
-    // command line argument of how many clients you will have
     public static void main(String[] args)
     {
-        //int numOfClients = args[0];
 
-        //Hardcoding
+        //Hardcoding num of clients
         int numOfClients = 5;
 
+        // create and start server
         MultiServer server = new MultiServer(5000);
         server.startServer(numOfClients);
+
+        // until there are 5 finished clients wait
+        while (finishedClients != 5){
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        // print total number of words
+        System.out.println("Total number of words is: " + totalWords);
+        // print total time taken
+        System.out.println("Total time taken was: " + (System.currentTimeMillis() - startTime) + " ms" );
+
+
+
     }
 }
